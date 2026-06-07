@@ -11,7 +11,7 @@ group.
 
 - Node.js 18+
 - A [Google Maps Platform](https://developers.google.com/maps) API key (for `MapVisualization`)
-- A GLM (Z.AI) API key — claim one from the hackathon Discord or https://zai-hackathon.zeabur.app/
+- A GLM (Z.AI) API key
 
 ## Run locally
 
