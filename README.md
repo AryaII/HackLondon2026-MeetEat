@@ -77,4 +77,4 @@ src/
    missing or the request fails, the UI silently keeps the templated reason —
    the AI step never blocks the results screen.
 
-   [View demo](https://AryaII.github.io/repo-name/path/to/meeteat-prototype.html)
+   [meeteat-prototype]meeteat-prototype.html
