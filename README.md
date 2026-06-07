@@ -76,3 +76,5 @@ src/
    natural explanation grounded in the same facts. If `VITE_GLM_API_KEY` is
    missing or the request fails, the UI silently keeps the templated reason —
    the AI step never blocks the results screen.
+
+   [View demo](https://AryaII.github.io/repo-name/path/to/meeteat-prototype.html.html)
