@@ -77,4 +77,4 @@ src/
    missing or the request fails, the UI silently keeps the templated reason —
    the AI step never blocks the results screen.
 
-   [meeteat-prototype]meeteat-prototype.html
+[View MeetEat Prototype](https://htmlpreview.github.io/?https://github.com/AryaIIE/HackLondon2026-MeetEat/blob/main/meeteat-prototype.html)
