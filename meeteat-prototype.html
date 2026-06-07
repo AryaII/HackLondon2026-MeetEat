@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MeetEat — Clickable Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --green:#10e08f;
+    --green-deep:#0c8f60;
+    --bg:#0a0b0d;
+    --panel:rgba(255,255,255,.04);
+    --panel-strong:rgba(255,255,255,.07);
+    --line:rgba(255,255,255,.08);
+    --ink:#f4f6f5;
+    --muted:#9aa1a8;
+    --muted-2:#6b7178;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:"Inter",sans-serif;
+    color:var(--ink);
+    background:
+      radial-gradient(60% 50% at 50% 30%, rgba(16,224,143,.08), transparent 60%),
+      var(--bg);
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+    line-height:1.5;
+  }
+  h1,h2,h3,h4,.display{font-family:"Sora",sans-serif}
+  .hidden{display:none !important}
+  button{font-family:inherit}
+
+  /* ===== Phone shell / stage ===== */
+  .stage{
+    max-width:480px;
+    margin:0 auto;
+    min-height:100vh;
+    position:relative;
+    background:var(--bg);
+    border-left:1px solid var(--line);
+    border-right:1px solid var(--line);
+    overflow:hidden;
+  }
+  .screen{
+    min-height:100vh;
+    padding:22px 18px 90px;
+    display:flex;
+    flex-direction:column;
+    animation:fadeIn .35s ease;
+  }
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+  /* ===== Proto chrome bar (not part of app, demo aid) ===== */
+  .protobar{
+    position:sticky;top:0;z-index:100;
+    background:rgba(10,11,13,.85);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+    padding:9px 14px;
+    display:flex;align-items:center;gap:10px;
+    font-size:11px;color:var(--muted);
+    max-width:480px;margin:0 auto;
+  }
+  .protobar .dot{width:7px;height:7px;border-radius:50%;background:var(--green)}
+  .protobar .step{
+    margin-left:auto;font-family:"Sora",sans-serif;font-weight:700;letter-spacing:.06em;
+    color:var(--green); font-size:10px; text-transform:uppercase;
+  }
+  .protobar .back{
+    border:1px solid var(--line);background:transparent;color:var(--muted);
+    border-radius:8px;padding:4px 9px;font-size:11px;cursor:pointer;
+  }
+  .protobar .back:hover{color:var(--ink);border-color:var(--green)}
+  .protobar .back:disabled{opacity:.3;cursor:not-allowed}
+
+  /* ===== shared bits ===== */
+  .logo-badge{
+    width:38px;height:38px;border-radius:11px;background:var(--green);color:#06140e;
+    display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;
+  }
+  .pill{
+    display:inline-flex;align-items:center;gap:6px;
+    font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+    padding:5px 11px;border-radius:99px;
+    background:rgba(16,224,143,.1);border:1px solid rgba(16,224,143,.25);color:var(--green);
+  }
+  .card{
+    background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px;
+  }
+  .btn{
+    border-radius:14px;font-weight:800;font-family:"Sora",sans-serif;font-size:14px;
+    cursor:pointer;border:none;transition:transform .15s ease, background .15s ease, opacity .15s;
+    display:flex;align-items:center;justify-content:center;gap:8px;
+  }
+  .btn:active{transform:scale(.98)}
+  .btn-primary{background:var(--green);color:#06140e;padding:15px;}
+  .btn-primary:hover{background:#3cf0ab}
+  .btn-primary:disabled{background:rgba(255,255,255,.06);color:var(--muted-2);cursor:not-allowed}
+  .btn-ghost{
+    background:rgba(255,255,255,.03);border:1px solid var(--line);color:var(--muted);
+    padding:13px;font-weight:700;
+  }
+  .btn-ghost:hover{color:var(--ink);border-color:rgba(255,255,255,.2)}
+  .btn-outline-green{
+    background:transparent;border:1px solid rgba(16,224,143,.35);color:var(--green);
+    padding:13px;font-weight:700;
+  }
+  .btn-outline-green:hover{background:rgba(16,224,143,.08);border-color:var(--green)}
+  .muted{color:var(--muted)}
+  .small{font-size:11px}
+  .tiny{font-size:10px}
+
+  /* ===== Landing ===== */
+  #screen-landing{justify-content:center;align-items:center;text-align:center;min-height:calc(100vh - 40px)}
+  .landing-glow{
+    position:absolute;top:38%;left:50%;transform:translate(-50%,-50%);
+    width:380px;height:380px;border-radius:50%;
+    background:radial-gradient(circle, rgba(16,224,143,.16), transparent 65%);
+    pointer-events:none;filter:blur(10px);
+  }
+  .landing-title{font-weight:800;font-size:42px;line-height:1.05;letter-spacing:-.02em;margin:18px 0 10px}
+  .landing-title span{color:var(--green)}
+  .landing-tagline{font-size:12px;color:var(--muted);max-width:300px;margin:0 auto 28px;line-height:1.6}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%}
+  .opt-card{
+    border-radius:16px;padding:18px 14px;display:flex;flex-direction:column;align-items:center;gap:6px;
+    cursor:pointer;border:1px solid var(--line);transition:all .15s ease;
+  }
+  .opt-card.primary{background:var(--green);color:#06140e;border:none}
+  .opt-card.primary:hover{background:#3cf0ab;transform:translateY(-1px)}
+  .opt-card.secondary{background:rgba(255,255,255,.03);color:var(--muted)}
+  .opt-card.secondary:hover{color:var(--ink);border-color:rgba(255,255,255,.18)}
+  .opt-card .emoji{font-size:20px}
+  .opt-card .ttl{font-weight:800;font-family:"Sora",sans-serif;font-size:14px}
+  .opt-card .sub{font-size:10px;opacity:.7}
+  .chat-banner{
+    width:100%;margin-top:10px;padding:14px;border-radius:16px;display:flex;align-items:center;gap:10px;
+    background:rgba(255,255,255,.025);border:1px solid var(--line);color:var(--muted);cursor:pointer;
+    text-align:left; transition:all .15s ease;
+  }
+  .chat-banner:hover{border-color:rgba(16,224,143,.35);color:var(--ink)}
+  .chat-banner b{color:var(--ink);font-family:"Sora",sans-serif;font-size:13px}
+  .specs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;margin-top:26px;padding-top:22px;border-top:1px solid var(--line)}
+  .spec{background:rgba(255,255,255,.025);border:1px solid var(--line);border-radius:14px;padding:12px 6px;text-align:center}
+  .spec .v{color:var(--green);font-weight:800;font-family:"Sora",sans-serif;font-size:16px}
+  .spec .l{font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-2);margin-top:3px}
+
+  /* ===== Room screen ===== */
+  .topbar{display:flex;align-items:center;gap:11px;padding-bottom:14px;border-bottom:1px solid var(--line);margin-bottom:18px}
+  .topbar .ttl{font-weight:700;font-size:14px}
+  .topbar .sub{font-size:9px;color:var(--muted-2);text-transform:uppercase;letter-spacing:.08em}
+  .live-pill{margin-left:auto;font-size:9px;font-weight:800;color:var(--green);background:rgba(16,224,143,.08);
+    border:1px solid rgba(16,224,143,.2);padding:4px 9px;border-radius:99px;display:flex;align-items:center;gap:5px}
+  .live-pill .dot{width:6px;height:6px;border-radius:50%;background:var(--green)}
+  .section-label{font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-2);margin-bottom:6px}
+  .section-title{font-weight:700;font-size:14px;margin-bottom:10px}
+
+  .share-link{
+    background:rgba(0,0,0,.35);border:1px solid var(--line);border-radius:12px;padding:10px 12px;
+    font-size:10px;color:var(--muted);font-family:monospace;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .share-row{display:flex;gap:8px;margin:10px 0}
+  .share-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+  .chip-btn{
+    border:1px solid var(--line);background:rgba(255,255,255,.02);color:var(--muted);
+    border-radius:11px;padding:9px 4px;font-size:10px;font-weight:700;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;gap:5px;transition:all .15s;
+  }
+  .chip-btn:hover{color:var(--green);border-color:rgba(16,224,143,.3)}
+
+  .participant{
+    display:flex;align-items:center;gap:11px;padding:12px;border:1px solid var(--line);
+    border-radius:16px;background:rgba(255,255,255,.025);margin-bottom:9px;
+  }
+  .avatar{
+    width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-family:"Sora",sans-serif;font-size:13px;flex-shrink:0;
+  }
+  .p-name{font-weight:700;font-size:13px}
+  .p-meta{font-size:10px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .p-loc{font-size:9px;color:var(--muted-2);font-family:monospace;margin-left:6px}
+  .p-actions{display:flex;gap:6px;margin-left:auto}
+  .icon-btn{
+    width:30px;height:30px;border-radius:9px;border:1px solid var(--line);background:rgba(255,255,255,.02);
+    color:var(--muted);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px;
+  }
+  .icon-btn:hover{color:var(--green);border-color:rgba(16,224,143,.3)}
+  .icon-btn.danger:hover{color:#f87171;border-color:rgba(248,113,113,.3)}
+
+  .add-companion{
+    width:100%;padding:14px;border-radius:16px;border:1px dashed var(--line);background:transparent;
+    color:var(--muted);font-weight:700;font-size:12px;cursor:pointer;transition:all .15s;
+  }
+  .add-companion:hover{color:var(--green);border-color:var(--green);background:rgba(16,224,143,.04)}
+
+  .divider{height:1px;background:var(--line);margin:20px 0}
+
+  .occasion-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:8px}
+  .occasion-btn{
+    padding:10px 4px;border-radius:12px;font-size:11px;font-weight:700;display:flex;flex-direction:column;
+    align-items:center;gap:4px;cursor:pointer;border:1px solid var(--line);background:rgba(255,255,255,.02);color:var(--muted);
+    transition:all .15s;
+  }
+  .occasion-btn .e{font-size:15px}
+  .occasion-btn.active{background:rgba(16,224,143,.1);border-color:var(--green);color:var(--green)}
+
+  .toggle-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+  .toggle-card{padding:14px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.02);
+    display:flex;flex-direction:column;justify-content:space-between;gap:10px;min-height:118px}
+  .toggle-card h4{font-size:12px;font-weight:700;display:flex;align-items:center;gap:6px}
+  .toggle-card p{font-size:9px;color:var(--muted);line-height:1.5;margin-top:4px}
+  .toggle-foot{display:flex;justify-content:space-between;align-items:center;padding-top:8px;border-top:1px solid var(--line)}
+  .toggle-status{font-size:8px;color:var(--muted-2);font-family:monospace}
+  .switch{width:38px;height:21px;border-radius:99px;padding:2px;cursor:pointer;background:rgba(255,255,255,.08);transition:background .15s;border:none}
+  .switch.on{background:var(--green)}
+  .switch .knob{width:17px;height:17px;border-radius:50%;background:#777;transition:transform .15s, background .15s;display:block}
+  .switch.on .knob{background:#06140e;transform:translateX(17px)}
+
+  .bottom-cta{position:sticky;bottom:0;padding-top:18px;margin-top:auto}
+
+  /* ===== Modal ===== */
+  .modal-backdrop{
+    position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(3px);z-index:200;
+    display:flex;align-items:flex-end;justify-content:center;
+  }
+  .modal-backdrop.center{align-items:center;padding:20px}
+  .modal{
+    width:100%;max-width:480px;background:#101214;border:1px solid var(--line);border-radius:22px 22px 0 0;
+    padding:22px 18px 26px;max-height:88vh;overflow-y:auto;animation:slideUp .25s ease;
+  }
+  .modal-backdrop.center .modal{border-radius:22px}
+  @keyframes slideUp{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
+  .modal h3{font-size:16px;margin-bottom:4px}
+  .modal .hint{font-size:11px;color:var(--muted);margin-bottom:18px}
+  .field{margin-bottom:14px}
+  .field label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);display:block;margin-bottom:6px}
+  .field input, .field select{
+    width:100%;padding:11px 13px;border-radius:11px;border:1px solid var(--line);
+    background:rgba(255,255,255,.03);color:var(--ink);font-size:13px;font-family:inherit;
+  }
+  .field input:focus, .field select:focus{outline:none;border-color:var(--green)}
+  .tag-row{display:flex;flex-wrap:wrap;gap:6px}
+  .tag{
+    padding:7px 12px;border-radius:99px;font-size:11px;font-weight:600;border:1px solid var(--line);
+    background:rgba(255,255,255,.02);color:var(--muted);cursor:pointer;transition:all .12s;
+  }
+  .tag.active{background:rgba(16,224,143,.12);border-color:var(--green);color:var(--green)}
+  .modal-actions{display:flex;gap:10px;margin-top:20px}
+  .modal-actions .btn{flex:1}
+
+  /* ===== Loading ===== */
+  #screen-loading{align-items:center;justify-content:center;text-align:center;min-height:calc(100vh - 40px)}
+  .spinner{
+    width:64px;height:64px;border-radius:50%;border:3px solid rgba(16,224,143,.15);border-top-color:var(--green);
+    animation:spin 1s linear infinite;margin:0 auto 22px;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .load-step{font-size:11px;color:var(--muted);margin:5px 0;opacity:.4;transition:opacity .25s, color .25s}
+  .load-step.active{opacity:1;color:var(--green);font-weight:700}
+  .load-step.done{opacity:.65;color:var(--muted)}
+
+  /* ===== Results ===== */
+  .res-header{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:14px;border-bottom:1px solid var(--line);margin-bottom:16px;gap:10px}
+  .res-header h1{font-size:16px;font-weight:800}
+  .session-pill{font-size:9px;font-family:monospace;color:var(--muted);border:1px solid var(--line);padding:4px 9px;border-radius:99px;background:rgba(0,0,0,.2)}
+
+  .winner-card{
+    position:relative;border:2px solid var(--line);border-radius:22px;padding:20px;margin-bottom:14px;
+    background:rgba(255,255,255,.03);overflow:hidden;cursor:pointer;
+  }
+  .winner-card .glow{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:260px;height:260px;
+    border-radius:50%;background:radial-gradient(circle,rgba(16,224,143,.08),transparent 70%);pointer-events:none}
+  .match-badge{position:absolute;top:18px;right:18px;background:rgba(16,224,143,.1);border:1px solid rgba(16,224,143,.3);
+    color:var(--green);font-weight:800;font-size:11px;padding:6px 12px;border-radius:99px}
+  .winner-card .label{font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--green);display:flex;align-items:center;gap:6px}
+  .winner-card .emoji-big{font-size:34px;display:block;margin:12px 0 4px}
+  .winner-card h2{font-size:24px;font-weight:800;margin-bottom:8px}
+  .winner-card .reason{font-size:12px;color:var(--muted);font-style:italic;line-height:1.6;margin-bottom:14px}
+  .meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding-top:12px;border-top:1px solid var(--line);margin-bottom:14px}
+  .meta-grid .k{font-size:9px;font-weight:700;text-transform:uppercase;color:var(--muted-2)}
+  .meta-grid .v{font-size:12px;font-weight:700;color:var(--ink);margin-top:2px}
+  .winner-actions{display:flex;gap:8px;flex-wrap:wrap}
+  .vote-btn{
+    flex:1;min-width:120px;padding:13px;border-radius:14px;font-weight:800;font-size:11px;border:none;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;gap:7px;transition:all .15s;background:var(--green);color:#06140e;
+  }
+  .vote-btn.voted{background:var(--green);color:#06140e}
+  .vote-btn.disabled{background:rgba(255,255,255,.06);color:var(--muted-2);cursor:not-allowed}
+  .link-btn{
+    flex:1;min-width:90px;padding:13px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.04);
+    color:var(--green);font-size:11px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;
+    text-decoration:none;
+  }
+  .link-btn:hover{border-color:var(--green)}
+
+  .runners-label{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-2);margin:18px 0 8px}
+  .runners-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+  .runner-card{
+    border:1px solid var(--line);border-radius:18px;padding:13px;background:rgba(255,255,255,.025);cursor:pointer;
+    transition:all .15s;
+  }
+  .runner-card.selected{border-color:var(--green);background:rgba(16,224,143,.04)}
+  .runner-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+  .runner-rank{font-size:9px;font-family:monospace;font-weight:800;color:var(--muted-2)}
+  .runner-pct{font-size:9px;font-weight:800;color:var(--green);background:rgba(16,224,143,.1);padding:2px 7px;border-radius:6px}
+  .runner-name{font-size:12px;font-weight:700;margin:5px 0 1px}
+  .runner-sub{font-size:9px;color:var(--muted-2)}
+  .runner-vote{
+    margin-top:9px;width:100%;padding:8px;border-radius:9px;font-size:9px;font-weight:800;border:1px solid var(--line);
+    background:rgba(255,255,255,.02);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;
+  }
+  .runner-vote.voted{background:var(--green);color:#06140e;border:none}
+
+  .timer-card{
+    border:1px solid var(--line);border-radius:18px;padding:14px;background:rgba(255,255,255,.025);margin-bottom:16px;
+  }
+  .timer-top{display:flex;align-items:center;gap:7px;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  .timer-row{display:flex;justify-content:space-between;font-size:10px;font-family:monospace;color:var(--muted);margin:9px 0 5px}
+  .timer-row b{color:var(--green)}
+  .timer-bar{height:6px;border-radius:99px;background:rgba(0,0,0,.4);overflow:hidden}
+  .timer-fill{height:100%;background:var(--green);border-radius:99px;transition:width 1s linear}
+  .timer-lock{
+    width:100%;margin-top:11px;padding:9px;border-radius:9px;border:1px dashed rgba(16,224,143,.35);
+    background:transparent;color:var(--green);font-size:10px;font-weight:700;cursor:pointer;
+  }
+  .timer-lock:hover{background:rgba(16,224,143,.06);border-style:solid}
+
+  .score-bars{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+  .score-row .head{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:3px}
+  .score-row .head b{color:var(--ink)}
+  .score-track{height:6px;border-radius:99px;background:rgba(0,0,0,.4);overflow:hidden}
+  .score-fill{height:100%;background:linear-gradient(90deg,var(--green-deep),var(--green));border-radius:99px}
+
+  .companion-list{display:flex;flex-direction:column;gap:7px;margin-top:8px}
+  .companion-row{
+    padding:9px 11px;border-radius:11px;border:1px solid var(--line);background:rgba(0,0,0,.2);
+    display:flex;justify-content:space-between;align-items:center;
+  }
+  .companion-row .name{font-size:11px;font-weight:700;display:flex;align-items:center;gap:6px}
+  .companion-row .name .d{width:5px;height:5px;border-radius:50%;background:var(--green)}
+  .companion-row .time{font-size:9px;color:var(--muted);font-family:monospace}
+
+  .map-stub{
+    border:1px solid var(--line);border-radius:18px;padding:16px;background:
+      radial-gradient(circle at 30% 30%, rgba(16,224,143,.12), transparent 50%),
+      rgba(255,255,255,.02);
+    margin-bottom:16px;min-height:160px;position:relative;overflow:hidden;
+  }
+  .map-stub .lab{font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-2);margin-bottom:10px}
+  .map-pin{
+    position:absolute;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:9px;color:var(--muted);
+  }
+  .map-pin .dot{width:11px;height:11px;border-radius:50%;border:2px solid var(--bg)}
+  .map-pin.you .dot{background:#60a5fa}
+  .map-pin.r .dot{background:var(--green);width:15px;height:15px}
+  .map-pin.r{font-weight:700;color:var(--green)}
+
+  .restart-link{
+    background:rgba(255,255,255,.03);border:1px solid var(--line);color:var(--muted);border-radius:99px;
+    font-size:10px;font-weight:700;padding:8px 16px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;
+  }
+  .restart-link:hover{color:var(--ink);border-color:rgba(255,255,255,.2)}
+
+  /* ===== Winner ===== */
+  #screen-winner{align-items:center;justify-content:center;text-align:center;min-height:calc(100vh - 40px)}
+  .winner-glow{position:absolute;top:42%;left:50%;transform:translate(-50%,-50%);width:340px;height:340px;border-radius:50%;
+    background:radial-gradient(circle,rgba(16,224,143,.14),transparent 65%);pointer-events:none}
+  .confetti-pill{
+    display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:99px;background:rgba(16,224,143,.12);
+    border:1px solid rgba(16,224,143,.3);color:var(--green);font-weight:800;font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+  }
+  .winner-emoji-card{
+    width:96px;height:96px;border-radius:24px;background:rgba(255,255,255,.04);border:1px solid rgba(16,224,143,.2);
+    display:flex;align-items:center;justify-content:center;font-size:46px;margin:18px auto;
+  }
+  #screen-winner h1{font-size:28px;font-weight:800;margin-bottom:6px}
+  #screen-winner .sub{font-size:11px;color:var(--muted);padding:0 16px;margin-bottom:18px}
+  .spec-card{
+    background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:20px;padding:18px;
+    text-align:left;display:flex;flex-direction:column;gap:11px;margin-bottom:14px;
+  }
+  .spec-row{display:flex;justify-content:space-between;align-items:center;font-size:11px;padding-bottom:9px;border-bottom:1px solid var(--line)}
+  .spec-row:last-child{border-bottom:none;padding-bottom:0}
+  .spec-row .k{color:var(--muted);font-weight:600}
+  .spec-row .v{font-weight:800;color:var(--ink)}
+  .spec-row .v.green{color:var(--green)}
+  .spec-row .v.blue{color:#93c5fd}
+  .winner-quote{
+    padding:13px;background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:14px;
+    font-size:10px;color:var(--muted);font-style:italic;line-height:1.6;margin-bottom:18px;text-align:left;
+  }
+  .winner-actions-row{display:flex;gap:9px;margin-bottom:10px}
+  .winner-actions-row .btn{flex:1}
+
+  ::-webkit-scrollbar{width:6px}
+  ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:99px}
+</style>
+</head>
+<body>
+
+<div class="protobar">
+  <span class="dot"></span>
+  <span>MeetEat — clickable prototype (demo data)</span>
+  <button class="back" id="btn-back" onclick="goBack()">← Back</button>
+  <span class="step" id="step-label">1 / 5 · Landing</span>
+</div>
+
+<div class="stage">
+
+  <!-- ============ 1. LANDING ============ -->
+  <section class="screen" id="screen-landing">
+    <div class="landing-glow"></div>
+    <div style="position:relative;z-index:1;max-width:320px;margin:0 auto">
+      <div class="logo-badge" style="margin:0 auto 16px">ME</div>
+      <h1 class="landing-title">Meet.<br><span>Eat.</span><br>Consensus.</h1>
+      <p class="landing-tagline">Aggregate transit times across multi-origins · Align complex dietary guidelines · Instant spatial consensus</p>
+
+      <div class="grid2">
+        <div class="opt-card primary" onclick="goTo('room')">
+          <span class="emoji">＋</span>
+          <span class="ttl">Create New Hangout</span>
+          <span class="sub">Custom preferences →</span>
+        </div>
+        <div class="opt-card secondary" onclick="loadDemoSandbox()">
+          <span class="emoji">✨</span>
+          <span class="ttl">Load Demo Sandbox</span>
+          <span class="sub">Simulate 5 traveler profiles</span>
+        </div>
+      </div>
+
+      <div class="chat-banner" onclick="alert('群聊共识模式 is a separate flow (simulated 4-person group chat where you @ the AI assistant). Not included in this prototype walkthrough — the core flow below covers Create → Vote → Winner.')">
+        <span style="font-size:18px">💬</span>
+        <div>
+          <b>Group Chat Mode</b>
+          <div class="sub" style="opacity:.7">Simulate a 4-person group chat — @ the assistant to pick a spot</div>
+        </div>
+      </div>
+
+      <div class="specs">
+        <div class="spec"><div class="v">⚡ 30s</div><div class="l">AI Synergy</div></div>
+        <div class="spec"><div class="v">✦ Multi-X</div><div class="l">Cross Factor</div></div>
+        <div class="spec"><div class="v">☺ Zero</div><div class="l">Zero Vetoes</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 2. ROOM ============ -->
+  <section class="screen hidden" id="screen-room">
+    <div class="topbar">
+      <div class="logo-badge">ME</div>
+      <div>
+        <div class="ttl">MeetEat Room Cabin</div>
+        <div class="sub">London Geo-Pilot</div>
+      </div>
+      <span class="live-pill"><span class="dot"></span>LONDON DEMO</span>
+    </div>
+
+    <div class="card" style="margin-bottom:14px">
+      <div class="section-label">📎 Share &amp; invite companions to enter their criteria</div>
+      <div class="share-row">
+        <div class="share-link">meeteat.app/r/K7X2M9</div>
+        <button class="chip-btn" style="flex:0 0 64px" onclick="copyLink(this)">Copy</button>
+      </div>
+      <div class="share-grid">
+        <button class="chip-btn">💬 WhatsApp</button>
+        <button class="chip-btn">📱 SMS</button>
+        <button class="chip-btn">↗ More</button>
+      </div>
+    </div>
+
+    <div class="section-label" style="display:flex;justify-content:space-between;align-items:baseline">
+      <span style="text-transform:none;font-size:13px;font-weight:700;color:var(--ink);letter-spacing:0">Companions (<span id="p-count">0</span>)</span>
+      <span class="tiny" style="color:var(--muted-2)">At least 2 required</span>
+    </div>
+    <div id="participant-list" style="margin-top:8px"></div>
+    <button class="add-companion" id="btn-add-companion" onclick="addCompanion()">＋ Add Companion (loads a demo profile)</button>
+
+    <div class="divider"></div>
+
+    <div class="section-label">Hangout profile vibe</div>
+    <div class="section-title">Occasion</div>
+    <div class="occasion-grid" id="occasion-grid"></div>
+
+    <div class="toggle-grid">
+      <div class="toggle-card">
+        <div>
+          <h4>🌧️ Rain Safeguard</h4>
+          <p>Penalize outer pathways, capping walking/cycling durability under 10 minutes.</p>
+        </div>
+        <div class="toggle-foot">
+          <span class="toggle-status" id="rain-status">DISABLED</span>
+          <button class="switch" id="toggle-rain" onclick="toggleSwitch('rain')"><span class="knob"></span></button>
+        </div>
+      </div>
+      <div class="toggle-card">
+        <div>
+          <h4>⏰ Open Now Only</h4>
+          <p>Instantly query current London business hours, filtering out closed venues.</p>
+        </div>
+        <div class="toggle-foot">
+          <span class="toggle-status" id="open-status">ALL_SHOW</span>
+          <button class="switch" id="toggle-open" onclick="toggleSwitch('open')"><span class="knob"></span></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-cta">
+      <button class="btn btn-primary" id="btn-search" style="width:100%" disabled onclick="goTo('loading')">
+        🔍 <span id="search-label">Add at least 2 companions to calculate</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- ============ 3. LOADING ============ -->
+  <section class="screen hidden" id="screen-loading">
+    <div class="spinner"></div>
+    <h3 style="margin-bottom:6px">Calculating fair consensus…</h3>
+    <p class="muted small" style="margin-bottom:20px">Crunching geographic centroids, dietary filters &amp; taste vectors</p>
+    <div id="load-steps" style="max-width:260px;margin:0 auto;text-align:left">
+      <div class="load-step" data-i="0">📍 Geocoding participant locations…</div>
+      <div class="load-step" data-i="1">🚦 Eliminating hard-constraint conflicts (budget, diet, travel time)…</div>
+      <div class="load-step" data-i="2">⚖️ Scoring fairness · cuisine match · venue quality · occasion fit…</div>
+      <div class="load-step" data-i="3">✨ Asking GLM to draft plain-language explanations…</div>
+      <div class="load-step" data-i="4">🏁 Ranking top 3 candidates…</div>
+    </div>
+  </section>
+
+  <!-- ============ 4. RESULTS ============ -->
+  <section class="screen hidden" id="screen-results">
+    <div class="res-header">
+      <div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
+          <div class="logo-badge" style="width:28px;height:28px;font-size:11px;border-radius:8px">ME</div>
+          <h1>MeetEat Consensus Board</h1>
+        </div>
+        <p class="muted tiny">Optimized for 5 foodies · Average ceiling reference £28</p>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+      <span class="session-pill">SESSION: LONDON_DINNER_5P</span>
+      <button class="restart-link" onclick="restart()">↻ Modify Cabin Settings</button>
+    </div>
+
+    <!-- Primary winner -->
+    <div class="winner-card" id="primary-card" onclick="selectRestaurant(0)">
+      <div class="glow"></div>
+      <div class="match-badge">86% Match</div>
+      <span class="label">✦ Primary chosen destination</span>
+      <span class="emoji-big">🍛</span>
+      <h2>Dishoom Shoreditch</h2>
+      <p class="reason">"Everyone arrives within their travel limit, halal &amp; vegetarian options are plentiful, and the lively-but-relaxed vibe fits a casual catch-up — zero cuisine conflicts across the group."</p>
+      <div class="meta-grid">
+        <div><div class="k">Cuisine &amp; Price</div><div class="v">Indian • ££</div></div>
+        <div><div class="k">Address</div><div class="v" style="font-weight:600;font-size:11px">7 Boundary St, London E2</div></div>
+      </div>
+      <div class="winner-actions" onclick="event.stopPropagation()">
+        <button class="vote-btn" id="vote-btn-0" onclick="castVote(0)">👍 <span>Cast A Vote (0)</span></button>
+        <a class="link-btn" href="#" onclick="return false">📅 Reserve Place</a>
+        <a class="link-btn" href="#" onclick="return false">🧭 Google Maps</a>
+      </div>
+    </div>
+
+    <div class="runners-label">Runners-up (alternative high-score options)</div>
+    <div class="runners-grid">
+      <div class="runner-card" id="runner-card-1" onclick="selectRestaurant(1)">
+        <div class="runner-top"><span class="runner-rank">02</span><span class="runner-pct">79%</span></div>
+        <span style="font-size:18px">🍝</span>
+        <div class="runner-name">Padella Spitalfields</div>
+        <div class="runner-sub">Italian • £</div>
+        <button class="runner-vote" id="runner-vote-1" onclick="event.stopPropagation();castVote(1)">👍 Cast A Vote (0)</button>
+      </div>
+      <div class="runner-card" id="runner-card-2" onclick="selectRestaurant(2)">
+        <div class="runner-top"><span class="runner-rank">03</span><span class="runner-pct">74%</span></div>
+        <span style="font-size:18px">🥟</span>
+        <div class="runner-name">Bao Borough</div>
+        <div class="runner-sub">Chinese • ££</div>
+        <button class="runner-vote" id="runner-vote-2" onclick="event.stopPropagation();castVote(2)">👍 Cast A Vote (0)</button>
+      </div>
+    </div>
+
+    <div class="timer-card">
+      <div class="timer-top">⏱ Consensus Clock</div>
+      <div class="timer-row"><span>Countdown</span><b id="timer-val">60s</b></div>
+      <div class="timer-bar"><div class="timer-fill" id="timer-fill" style="width:100%"></div></div>
+      <button class="timer-lock" onclick="lockPrimary()">Lock Primary Destination →</button>
+    </div>
+
+    <div class="map-stub">
+      <div class="lab">📍 Geocentric radar</div>
+      <div class="map-pin you" style="top:30px;left:40px"><span class="dot"></span>Maya</div>
+      <div class="map-pin you" style="top:70px;left:120px"><span class="dot"></span>Tom</div>
+      <div class="map-pin you" style="top:50px;right:60px"><span class="dot"></span>Sara</div>
+      <div class="map-pin you" style="bottom:36px;left:70px"><span class="dot"></span>Jin</div>
+      <div class="map-pin you" style="bottom:24px;right:40px"><span class="dot"></span>Ola</div>
+      <div class="map-pin r" style="top:46%;left:46%"><span class="dot"></span>🍛 Dishoom</div>
+    </div>
+
+    <div class="card" style="margin-bottom:14px">
+      <div class="section-label">Decision matrix</div>
+      <div class="section-title" style="font-size:12px">Cohesive score breakdown — Dishoom Shoreditch</div>
+      <div class="score-bars">
+        <div class="score-row">
+          <div class="head"><span>Geographic Fairness</span><b>27 / 30</b></div>
+          <div class="score-track"><div class="score-fill" style="width:90%"></div></div>
+        </div>
+        <div class="score-row">
+          <div class="head"><span>Cuisine Match</span><b>17 / 20</b></div>
+          <div class="score-track"><div class="score-fill" style="width:85%"></div></div>
+        </div>
+        <div class="score-row">
+          <div class="head"><span>Venue Quality</span><b>23 / 25</b></div>
+          <div class="score-track"><div class="score-fill" style="width:92%"></div></div>
+        </div>
+        <div class="score-row">
+          <div class="head"><span>Occasion Fit</span><b>9 / 10</b></div>
+          <div class="score-track"><div class="score-fill" style="width:90%"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-label">Companion departure</div>
+      <div class="companion-list">
+        <div class="companion-row"><span class="name"><span class="d"></span>Maya</span><span class="time">🚇 14m</span></div>
+        <div class="companion-row"><span class="name"><span class="d"></span>Tom</span><span class="time">🚲 9m</span></div>
+        <div class="companion-row"><span class="name"><span class="d"></span>Sara</span><span class="time">🚶 17m</span></div>
+        <div class="companion-row"><span class="name"><span class="d"></span>Jin</span><span class="time">🚌 12m</span></div>
+        <div class="companion-row"><span class="name"><span class="d"></span>Ola</span><span class="time">🚇 19m</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 5. WINNER ============ -->
+  <section class="screen hidden" id="screen-winner">
+    <div class="winner-glow"></div>
+    <div style="position:relative;z-index:1;max-width:320px;margin:0 auto">
+      <span class="confetti-pill">✦ Unanimous Consensus</span>
+      <div class="winner-emoji-card" id="winner-emoji">🍛</div>
+      <h1 id="winner-name">Dishoom Shoreditch</h1>
+      <p class="sub" id="winner-sub">Indian • 7 Boundary St, London E2 7JE</p>
+
+      <div class="spec-card">
+        <div class="spec-row"><span class="k">Google Maps Review</span><span class="v">4.6 ★ (12.4k reviews)</span></div>
+        <div class="spec-row"><span class="k">Estimated Price Reference</span><span class="v">£22 per head (Tier ££)</span></div>
+        <div class="spec-row"><span class="k">Max Commute (Tardiest)</span><span class="v blue">19 min (Ola)</span></div>
+        <div class="spec-row"><span class="k">Unified Score Matrix</span><span class="v green" id="winner-score">76 / 80 Pts</span></div>
+      </div>
+
+      <div class="winner-quote" id="winner-quote">"Everyone arrives within their travel limit, halal &amp; vegetarian options are plentiful, and the lively-but-relaxed vibe fits a casual catch-up — zero cuisine conflicts across the group."</div>
+
+      <div class="winner-actions-row">
+        <a class="btn btn-primary" href="#" onclick="return false">🧭 Google Maps</a>
+        <a class="btn btn-outline-green" href="#" onclick="return false">📅 Book Venue</a>
+      </div>
+      <button class="btn btn-ghost" style="width:100%" onclick="restart()">↻ Launch New Dining Room Settings →</button>
+    </div>
+  </section>
+
+</div>
+
+<!-- ============ MODAL: add companion ============ -->
+<div class="modal-backdrop hidden" id="modal-companion">
+  <div class="modal">
+    <h3>Add Companion</h3>
+    <p class="hint">Loads a demo profile — in the live app each person fills this in themselves via the shared link.</p>
+    <div class="field">
+      <label>Name &amp; postcode</label>
+      <input type="text" id="modal-name-display" disabled>
+    </div>
+    <div class="field">
+      <label>Cuisine likes</label>
+      <div class="tag-row" id="modal-likes"></div>
+    </div>
+    <div class="field">
+      <label>Dietary requirements</label>
+      <div class="tag-row" id="modal-diet"></div>
+    </div>
+    <div class="field">
+      <label>Max budget &amp; travel</label>
+      <input type="text" id="modal-travel-display" disabled>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-companion')">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmAddCompanion()">Add to Room</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL: lock destination confirm ============ -->
+<div class="modal-backdrop hidden center" id="modal-lock">
+  <div class="modal" style="border-radius:22px">
+    <h3>Lock in Dishoom Shoreditch?</h3>
+    <p class="hint">This ends the vote early and crowns the current leader as the group's destination.</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-lock')">Keep Voting</button>
+      <button class="btn btn-primary" onclick="closeModal('modal-lock'); finishToWinner(0)">Lock It In</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ---------------------------------------------------------------
+  // Demo data
+  // ---------------------------------------------------------------
+  const DEMO_PROFILES = [
+    { name: 'Maya Chen',  loc: 'E1 6AN',  color:'#10b981', likes:['Indian','Thai'],   diet:['Vegetarian'],        budget:25, mode:'🚇 Transit', time:25 },
+    { name: 'Tom Walker', loc: 'WC2 9JD', color:'#60a5fa', likes:['Italian','Asian'], diet:['No Restrictions'],   budget:30, mode:'🚲 Cycling', time:20 },
+    { name: 'Sara Iqbal', loc: 'N1 7DB',  color:'#34d399', likes:['Indian','Middle Eastern'], diet:['Halal'],     budget:22, mode:'🚶 Walking', time:18 },
+    { name: 'Jin Park',   loc: 'SE1 2NY', color:'#f472b6', likes:['Korean','Chinese'],diet:['Gluten-free'],       budget:35, mode:'🚌 Bus',     time:22 },
+    { name: 'Ola Adeyemi',loc: 'E14 5AB', color:'#a78bfa', likes:['Caribbean','African'],diet:['No Restrictions'],budget:28, mode:'🚇 Transit', time:28 },
+  ];
+  const LIKE_OPTIONS = ['Indian','Italian','Thai','Chinese','Korean','Asian','Middle Eastern','Caribbean','African'];
+  const DIET_OPTIONS = ['No Restrictions','Vegetarian','Vegan','Halal','Gluten-free','Dairy-free'];
+  const OCCASIONS = [
+    {key:'casual', icon:'🍺', label:'Casual'},
+    {key:'birthday', icon:'🎂', label:'Birthday'},
+    {key:'date', icon:'🌹', label:'Date'},
+    {key:'business', icon:'💼', label:'Business'},
+    {key:'celebration', icon:'🎉', label:'Celebration'},
+  ];
+
+  // ---------------------------------------------------------------
+  // State
+  // ---------------------------------------------------------------
+  let participants = [];
+  let occasion = 'casual';
+  let rainMode = false;
+  let openOnly = false;
+  let pendingProfile = null;
+  let modalLikes = [];
+  let modalDiet = [];
+  let votes = [0,0,0];
+  let votedIdx = null;
+  let timeLeft = 60;
+  let timerHandle = null;
+  let selectedRestaurant = 0;
+
+  const SCREENS = ['landing','room','loading','results','winner'];
+  const SCREEN_LABELS = {landing:'Landing', room:'Room Setup', loading:'Crunching Numbers', results:'Vote on Results', winner:'Winner Crowned'};
+  let history = ['landing'];
+
+  function showScreen(name){
+    SCREENS.forEach(s => document.getElementById('screen-'+s).classList.toggle('hidden', s !== name));
+    document.getElementById('step-label').textContent = (SCREENS.indexOf(name)+1) + ' / 5 · ' + SCREEN_LABELS[name];
+    document.getElementById('btn-back').disabled = history.length <= 1;
+    window.scrollTo({top:0, behavior:'instant' in window ? 'instant':'auto'});
+  }
+
+  function goTo(name, recordHistory = true){
+    if (recordHistory) history.push(name);
+    if (name === 'loading') runLoadingSequence();
+    if (name === 'results') initResults();
+    showScreen(name);
+  }
+
+  function goBack(){
+    if (history.length <= 1) return;
+    history.pop();
+    const prev = history[history.length-1];
+    if (prev === 'loading') { history.pop(); return goBack(); } // skip loading on back
+    showScreen(prev);
+  }
+
+  // ---------------------------------------------------------------
+  // Landing
+  // ---------------------------------------------------------------
+  function loadDemoSandbox(){
+    goTo('room');
+    // auto-populate all 5 demo profiles
+    while (participants.length < 5) addParticipantDirect(DEMO_PROFILES[participants.length]);
+    renderParticipants();
+  }
+
+  // ---------------------------------------------------------------
+  // Room screen
+  // ---------------------------------------------------------------
+  function renderOccasions(){
+    const grid = document.getElementById('occasion-grid');
+    grid.innerHTML = OCCASIONS.map(o => `
+      <button class="occasion-btn ${o.key === occasion ? 'active':''}" onclick="setOccasion('${o.key}')">
+        <span class="e">${o.icon}</span><span>${o.label}</span>
+      </button>`).join('');
+  }
+  function setOccasion(key){ occasion = key; renderOccasions(); }
+
+  function toggleSwitch(which){
+    if (which === 'rain'){
+      rainMode = !rainMode;
+      document.getElementById('toggle-rain').classList.toggle('on', rainMode);
+      document.getElementById('rain-status').textContent = rainMode ? 'ENABLED' : 'DISABLED';
+    } else {
+      openOnly = !openOnly;
+      document.getElementById('toggle-open').classList.toggle('on', openOnly);
+      document.getElementById('open-status').textContent = openOnly ? 'OPEN_ONLY' : 'ALL_SHOW';
+    }
+  }
+
+  function addCompanion(){
+    if (participants.length >= 5) return;
+    pendingProfile = DEMO_PROFILES[participants.length];
+    modalLikes = [...pendingProfile.likes];
+    modalDiet = [...pendingProfile.diet];
+    document.getElementById('modal-name-display').value = `${pendingProfile.name}  ·  📍 ${pendingProfile.loc}`;
+    document.getElementById('modal-travel-display').value = `Max £${pendingProfile.budget}  ·  ${pendingProfile.mode} (max ${pendingProfile.time}m)`;
+    renderTagRow('modal-likes', LIKE_OPTIONS, modalLikes, (v)=>toggleTag(modalLikes, v, 'modal-likes', LIKE_OPTIONS));
+    renderTagRow('modal-diet', DIET_OPTIONS, modalDiet, (v)=>toggleTag(modalDiet, v, 'modal-diet', DIET_OPTIONS));
+    openModal('modal-companion');
+  }
+  function toggleTag(arr, value, containerId, options){
+    const idx = arr.indexOf(value);
+    if (idx >= 0) arr.splice(idx,1); else arr.push(value);
+    renderTagRow(containerId, options, arr, (v)=>toggleTag(arr, v, containerId, options));
+  }
+  function renderTagRow(containerId, options, active, onClick){
+    const el = document.getElementById(containerId);
+    el.innerHTML = options.map(o => `<span class="tag ${active.includes(o)?'active':''}" data-v="${o}">${o}</span>`).join('');
+    [...el.children].forEach(child => child.onclick = () => onClick(child.dataset.v));
+  }
+  function confirmAddCompanion(){
+    addParticipantDirect({...pendingProfile, likes: [...modalLikes], diet: [...modalDiet]});
+    closeModal('modal-companion');
+    renderParticipants();
+  }
+  function addParticipantDirect(profile){
+    participants.push(profile);
+  }
+  function removeParticipant(i){
+    participants.splice(i,1);
+    renderParticipants();
+  }
+  function editParticipant(i){
+    alert(`Edit "${participants[i].name}" — in the live app this re-opens their preference form. Skipped in this prototype to keep the walkthrough short.`);
+  }
+  function renderParticipants(){
+    const list = document.getElementById('participant-list');
+    document.getElementById('p-count').textContent = participants.length;
+    list.innerHTML = participants.map((p,i) => `
+      <div class="participant">
+        <div class="avatar" style="background:${p.color}22;color:${p.color};border:1px solid ${p.color}55">${p.name.charAt(0)}</div>
+        <div style="flex:1;min-width:0">
+          <div class="p-name">${p.name}<span class="p-loc">📍 ${p.loc}</span></div>
+          <div class="p-meta">${p.likes.join('·').toUpperCase()} • ${p.diet.join('·')} • Max £${p.budget} • ${p.mode} (Max ${p.time}m)</div>
+        </div>
+        <div class="p-actions">
+          <button class="icon-btn" title="Edit" onclick="editParticipant(${i})">✎</button>
+          <button class="icon-btn danger" title="Remove" onclick="removeParticipant(${i})">🗑</button>
+        </div>
+      </div>`).join('');
+
+    document.getElementById('btn-add-companion').classList.toggle('hidden', participants.length >= 5);
+
+    const searchBtn = document.getElementById('btn-search');
+    const label = document.getElementById('search-label');
+    if (participants.length >= 2){
+      searchBtn.disabled = false;
+      label.textContent = `Calculate Center for ${participants.length} Foodies`;
+    } else {
+      searchBtn.disabled = true;
+      label.textContent = 'Add at least 2 companions to calculate';
+    }
+  }
+  function copyLink(btn){
+    const original = btn.textContent;
+    btn.textContent = 'Copied ✓';
+    btn.style.color = 'var(--green)';
+    btn.style.borderColor = 'var(--green)';
+    setTimeout(()=>{ btn.textContent = original; btn.style.color=''; btn.style.borderColor=''; }, 1600);
+  }
+
+  // ---------------------------------------------------------------
+  // Loading
+  // ---------------------------------------------------------------
+  function runLoadingSequence(){
+    const steps = [...document.querySelectorAll('.load-step')];
+    steps.forEach(s => s.classList.remove('active','done'));
+    let i = 0;
+    function tick(){
+      steps.forEach((s, idx) => {
+        s.classList.toggle('active', idx === i);
+        s.classList.toggle('done', idx < i);
+      });
+      i++;
+      if (i <= steps.length){
+        setTimeout(tick, 620);
+      } else {
+        setTimeout(()=>goTo('results'), 280);
+      }
+    }
+    tick();
+  }
+
+  // ---------------------------------------------------------------
+  // Results / voting
+  // ---------------------------------------------------------------
+  function initResults(){
+    votes = [0,0,0];
+    votedIdx = null;
+    selectedRestaurant = 0;
+    timeLeft = 60;
+    document.querySelectorAll('.vote-btn, .runner-vote').forEach(b => {
+      b.classList.remove('voted','disabled');
+    });
+    document.getElementById('vote-btn-0').innerHTML = '👍 <span>Cast A Vote (0)</span>';
+    document.getElementById('runner-vote-1').innerHTML = '👍 Cast A Vote (0)';
+    document.getElementById('runner-vote-2').innerHTML = '👍 Cast A Vote (0)';
+    selectRestaurant(0);
+    if (timerHandle) clearInterval(timerHandle);
+    updateTimerUI();
+    timerHandle = setInterval(() => {
+      if (votedIdx !== null){ clearInterval(timerHandle); return; }
+      timeLeft -= 1;
+      updateTimerUI();
+      if (timeLeft <= 0){
+        clearInterval(timerHandle);
+        finishToWinner(selectedRestaurant);
+      }
+    }, 1000);
+  }
+  function updateTimerUI(){
+    document.getElementById('timer-val').textContent = timeLeft + 's';
+    document.getElementById('timer-fill').style.width = (timeLeft/60*100) + '%';
+  }
+  function selectRestaurant(idx){
+    selectedRestaurant = idx;
+    document.getElementById('primary-card').style.borderColor = idx === 0 ? 'var(--line)' : 'transparent';
+    document.getElementById('primary-card').style.opacity = idx === 0 ? '1' : '.85';
+    document.getElementById('runner-card-1').classList.toggle('selected', idx === 1);
+    document.getElementById('runner-card-2').classList.toggle('selected', idx === 2);
+  }
+  function castVote(idx){
+    if (votedIdx !== null) return;
+    votes[idx] += 1;
+    votedIdx = idx;
+    selectRestaurant(idx);
+
+    const v0 = document.getElementById('vote-btn-0');
+    const v1 = document.getElementById('runner-vote-1');
+    const v2 = document.getElementById('runner-vote-2');
+    [[v0,0],[v1,1],[v2,2]].forEach(([el, i]) => {
+      if (i === idx){
+        el.classList.add('voted');
+        el.innerHTML = i === 0 ? `✓ <span>Voted (${votes[i]})</span>` : `✓ Voted (${votes[i]})`;
+      } else {
+        el.classList.add('disabled');
+      }
+    });
+    if (timerHandle) clearInterval(timerHandle);
+    setTimeout(()=> finishToWinner(idx), 1100);
+  }
+  function lockPrimary(){
+    openModal('modal-lock');
+  }
+  function finishToWinner(idx){
+    if (timerHandle) clearInterval(timerHandle);
+    const data = [
+      { emoji:'🍛', name:'Dishoom Shoreditch', sub:'Indian • 7 Boundary St, London E2 7JE',
+        rating:'4.6 ★ (12.4k reviews)', price:'£22 per head (Tier ££)', commute:'19 min (Ola)', score:'76 / 80 Pts',
+        quote:'"Everyone arrives within their travel limit, halal & vegetarian options are plentiful, and the lively-but-relaxed vibe fits a casual catch-up — zero cuisine conflicts across the group."' },
+      { emoji:'🍝', name:'Padella Spitalfields', sub:'Italian • 1 Bishops Square, London E1 6AD',
+        rating:'4.5 ★ (8.2k reviews)', price:'£16 per head (Tier £)', commute:'21 min (Sara)', score:'70 / 80 Pts',
+        quote:'"A budget-friendly favourite that keeps everyone\'s wallet happy, with quick tables and a buzzy room that suits a casual, no-fuss catch-up."' },
+      { emoji:'🥟', name:'Bao Borough', sub:'Taiwanese & Chinese (Bao) • 13 Stoney St, London SE1 9AD',
+        rating:'4.4 ★ (5.6k reviews)', price:'£20 per head (Tier ££)', commute:'24 min (Maya)', score:'66 / 80 Pts',
+        quote:'"Punchy flavours and a relaxed bao-bar setting strike a nice middle ground on cuisine, even if it sits a little further from two of the group."' },
+    ][idx];
+    document.getElementById('winner-emoji').textContent = data.emoji;
+    document.getElementById('winner-name').textContent = data.name;
+    document.getElementById('winner-sub').textContent = data.sub;
+    document.getElementById('winner-score').textContent = data.score;
+    document.getElementById('winner-quote').textContent = data.quote;
+    document.querySelector('#screen-winner .spec-row:nth-child(1) .v').textContent = data.rating;
+    document.querySelector('#screen-winner .spec-row:nth-child(2) .v').textContent = data.price;
+    document.querySelector('#screen-winner .spec-row:nth-child(3) .v').textContent = data.commute;
+    goTo('winner');
+  }
+
+  // ---------------------------------------------------------------
+  // Modal helpers
+  // ---------------------------------------------------------------
+  function openModal(id){ document.getElementById(id).classList.remove('hidden'); }
+  function closeModal(id){ document.getElementById(id).classList.add('hidden'); }
+
+  // ---------------------------------------------------------------
+  // Restart
+  // ---------------------------------------------------------------
+  function restart(){
+    if (timerHandle) clearInterval(timerHandle);
+    participants = [];
+    occasion = 'casual';
+    rainMode = false;
+    openOnly = false;
+    document.getElementById('toggle-rain').classList.remove('on');
+    document.getElementById('toggle-open').classList.remove('on');
+    document.getElementById('rain-status').textContent = 'DISABLED';
+    document.getElementById('open-status').textContent = 'ALL_SHOW';
+    renderOccasions();
+    renderParticipants();
+    history = ['landing'];
+    showScreen('landing');
+  }
+
+  // ---------------------------------------------------------------
+  // Init
+  // ---------------------------------------------------------------
+  renderOccasions();
+  renderParticipants();
+  showScreen('landing');
+</script>
+
+</body>
+</html>
